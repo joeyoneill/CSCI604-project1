@@ -10,20 +10,22 @@
 
 # define MAX_SEQUENCE 100
 
-typedef struct {
+struct shared_data {
 	int fib_sequence[MAX_SEQUENCE];
 	int sequence_size;
-}shared_data;
+};
 
 int main() {
 	long long fib1 = 0;
 	long long fib2 = 1;
 	long long fib3 = fib1 + fib2;
 	int input;
+	int input_orig;
 	int fd;
 	int res;
 	void *addr;
 	char *shm_name = "/shm_name";
+	struct shared_data data;
 	
 	printf("Enter the number of a Fibonacci Sequence:\n");
 
@@ -38,6 +40,8 @@ int main() {
 		printf("%s %d\n", "Input Error: cannot enter number larger than", MAX_SEQUENCE);
 		exit(0);
 	}
+
+	input_orig = input;
 
 	// fork()
 	pid_t pid = fork();
@@ -66,15 +70,26 @@ int main() {
 
 
      	printf("Child is producing the Fibonacci Sequence...\n");
-		printf("0 %llu ", fib3);
-		input--;
 
-		while (input > 0) {
+     	// Produces squence and saves to shared memory
+		data.fib_sequence[0] = 0;
+		data.fib_sequence[1] = 1;
+		input--;
+		for(int i = 2; i < i + input; i++) {
 			fib3 = fib1 + fib2;
-			printf("%llu ", fib3);
+			data.fib_sequence[i] = fib3;
 			fib1 = fib2;
 			fib2 = fib3;
 			input--;
+		}
+
+		// printing sequence from shared memory
+		printf("Printing from shared memory: ");
+		for(int i = 0; i < input_orig + 1; i++) {
+			if (i == input_orig)
+				printf("%d\n", data.fib_sequence[i]);
+			else
+				printf("%d, ", data.fib_sequence[i]);
 		}
 	}
 	else {
@@ -83,12 +98,13 @@ int main() {
 		printf("\n");
 	}
 
+	// Remove shared memory object
 	// mmap cleanup
 	res = munmap(addr, MAX_SEQUENCE);
 	if (res == -1)
 	{
 		perror("munmap");
-		exit(0);
+		return 40;
 	}
 
 	// shm_open cleanup
@@ -96,7 +112,7 @@ int main() {
 	if (fd == -1)
 	{
 		perror("unlink");
-		exit(0);
+		return 100;
 	}
 
 	return 0;
