@@ -41,7 +41,7 @@ int main() {
 		exit(0);
 	}
 
-	input_orig = input;
+	data.sequence_size = input;
 
 	// fork()
 	pid_t pid = fork();
@@ -75,9 +75,12 @@ int main() {
 		data.fib_sequence[0] = 0;
 		data.fib_sequence[1] = 1;
 		input--;
+		printf("0, 1\n");
 		for(int i = 2; i < i + input; i++) {
 			fib3 = fib1 + fib2;
 			data.fib_sequence[i] = fib3;
+			printf("%lld\n", fib3);
+
 			fib1 = fib2;
 			fib2 = fib3;
 			input--;
@@ -85,8 +88,9 @@ int main() {
 
 		// printing sequence from shared memory
 		printf("Printing from shared memory: ");
-		for(int i = 0; i < input_orig + 1; i++) {
-			if (i == input_orig)
+		int n = data.sequence_size + 1;
+		for(int i = 0; i < n; i++) {
+			if (i == n - 1)
 				printf("%d\n", data.fib_sequence[i]);
 			else
 				printf("%d, ", data.fib_sequence[i]);
@@ -101,10 +105,11 @@ int main() {
 	// Remove shared memory object
 	// mmap cleanup
 	res = munmap(addr, MAX_SEQUENCE);
+	//printf("%d\n", res);
 	if (res == -1)
 	{
 		perror("munmap");
-		return 40;
+		exit(0);
 	}
 
 	// shm_open cleanup
@@ -112,7 +117,7 @@ int main() {
 	if (fd == -1)
 	{
 		perror("unlink");
-		return 100;
+		exit(0);
 	}
 
 	return 0;
