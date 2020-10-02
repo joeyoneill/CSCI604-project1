@@ -4,10 +4,17 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+# define MAX_SEQUENCE 100
+
+typedef struct {
+	int fib_sequence[MAX_SEQUENCE];
+	int sequence_size;
+}shared_data;
+
 int main() {
-	int fib1 = 0;
-	int fib2 = 1;
-	int fib3 = fib1 + fib2;
+	long long fib1 = 0;
+	long long fib2 = 1;
+	long long fib3 = fib1 + fib2;
 	int input;
 
 	printf("Enter the number of a Fibonacci Sequence:\n");
@@ -18,13 +25,19 @@ int main() {
 		exit(0);
 	}
 
+	// Error checking it is less than MAX_SEQUENCE
+	if(input > MAX_SEQUENCE) {
+		printf("%s\n", "Input Error: cannot enter number larger than " + MAX_SEQUENCE);
+		exit(0);
+	}
+
 	// fork()
 	pid_t pid = fork();
 	if (pid == 0) {
-		printf("0 %d ", fib3);
+		printf("0 %llu ", fib3);
 		while (input > 0) {
 			fib3 = fib1 + fib2;
-			printf("%d ", fib3);
+			printf("%llu ", fib3);
 			fib1 = fib2;
 			fib2 = fib3;
 			input--;
