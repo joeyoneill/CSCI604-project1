@@ -27,7 +27,7 @@ int main() {
 
 	// Error checking it is less than MAX_SEQUENCE
 	if(input > MAX_SEQUENCE) {
-		printf("%s\n", "Input Error: cannot enter number larger than " + MAX_SEQUENCE);
+		printf("%s %d\n", "Input Error: cannot enter number larger than", MAX_SEQUENCE);
 		exit(0);
 	}
 
