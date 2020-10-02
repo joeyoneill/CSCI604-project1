@@ -22,6 +22,7 @@ int main() {
 	pid_t pid = fork();
 	if (pid == 0) {
 		printf("0 %llu ", fib3);
+		input--;
 		while (input > 0) {
 			fib3 = fib1 + fib2;
 			printf("%llu ", fib3);
