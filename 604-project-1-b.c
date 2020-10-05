@@ -75,12 +75,9 @@ int main() {
 		data.fib_sequence[0] = 0;
 		data.fib_sequence[1] = 1;
 		input--;
-		printf("0, 1\n");
 		for(int i = 2; i < i + input; i++) {
 			fib3 = fib1 + fib2;
 			data.fib_sequence[i] = fib3;
-			printf("%lld\n", fib3);
-
 			fib1 = fib2;
 			fib2 = fib3;
 			input--;
@@ -95,29 +92,25 @@ int main() {
 			else
 				printf("%d, ", data.fib_sequence[i]);
 		}
+
+		// Remove shared memory object
+		// mmap cleanup	
+		res = munmap(addr, MAX_SEQUENCE);
+		if (res == -1) {
+			perror("munmap");
+			exit(0);
+		}
+
+		// shm_open cleanup
+		fd = shm_unlink(shm_name);
+		if (fd == -1) {
+			perror("unlink");
+			exit(0);
+		}
 	}
 	else {
 		// Parent wait() for child to complete
 		wait(NULL);
-		printf("\n");
-	}
-
-	// Remove shared memory object
-	// mmap cleanup
-	res = munmap(addr, MAX_SEQUENCE);
-	//printf("%d\n", res);
-	if (res == -1)
-	{
-		perror("munmap");
-		exit(0);
-	}
-
-	// shm_open cleanup
-	fd = shm_unlink(shm_name);
-	if (fd == -1)
-	{
-		perror("unlink");
-		exit(0);
 	}
 
 	return 0;
